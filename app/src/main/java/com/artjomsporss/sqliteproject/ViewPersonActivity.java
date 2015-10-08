@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.artjomsporss.sqliteproject.database.DBFeederContract;
 import com.artjomsporss.sqliteproject.database.DBHandler;
+import com.artjomsporss.sqliteproject.person.Person;
 
 public class ViewPersonActivity extends AppCompatActivity {
 
@@ -18,8 +19,7 @@ public class ViewPersonActivity extends AppCompatActivity {
     public static final String KEY_NAME = "PERSON_NAME";
     public static final String KEY_PHONE_NUM = "PERSON_PHONE_NUMBER";
     public static final String KEY_EMAIL = "PERSON_EMAIL";
-
-    private int personID = -1;
+    private Person person;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,17 +27,13 @@ public class ViewPersonActivity extends AppCompatActivity {
         setContentView(R.layout.activity_view_person);
         Intent intent = getIntent();
 
-        String strID = intent.getStringExtra(KEY_ID);
-        try{
-            personID = Integer.parseInt(strID);
-        }catch(NumberFormatException nfe){
-            nfe.printStackTrace();
-        }
+        this.person = new Person();
+        person.setID(intent.getIntExtra(KEY_ID, -1));
+        person.setName(intent.getStringExtra(KEY_NAME));
+        person.setPhoneNum(intent.getStringExtra(KEY_PHONE_NUM));
+        person.setEmail(intent.getStringExtra(KEY_EMAIL));
 
-        showPerson(strID
-                , intent.getStringExtra(KEY_NAME)
-                , intent.getStringExtra(KEY_PHONE_NUM)
-                , intent.getStringExtra(KEY_EMAIL));
+        showPerson();
     }
 
     @Override
@@ -62,16 +58,14 @@ public class ViewPersonActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void showPerson(String id, String name, String phoneNum, String email){
-        TextView idView = (TextView)findViewById(R.id.view_id);
+    public void showPerson(){
         TextView nameView = (TextView)findViewById(R.id.view_name);
         TextView phoneNumView = (TextView)findViewById(R.id.view_phone_num);
         TextView emailView = (TextView)findViewById(R.id.view_email);
 
-        idView.setText(id);
-        nameView.setText(name);
-        phoneNumView.setText(phoneNum);
-        emailView.setText(email);
+        nameView.setText(this.person.getName());
+        phoneNumView.setText(this.person.getPhoneNum());
+        emailView.setText(this.person.getEmail());
     }
 
     public void onClickRemove(View view){
@@ -79,8 +73,7 @@ public class ViewPersonActivity extends AppCompatActivity {
             @Override
             public void run() {
                 DBHandler dbHandler = new DBHandler(getApplicationContext());
-                Log.d("ID", "" + personID);
-                dbHandler.removePerson(personID);
+                dbHandler.removePerson(person.getID());
                 setResult(1);
                 finish();
             }
